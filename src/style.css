@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}
+
+header{
+    background-color: var(--color-blue-900);
+}
+
+button.month-selector{
+    background-color: var(--color-blue-200);
+    border-radius: 50%;
+    width:32px;
+    height:32px;
+    line-height:32px;
+    padding:0;
+}
+
+#logo{
+    background-color: #fff;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
