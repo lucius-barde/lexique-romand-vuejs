@@ -17,6 +17,7 @@ const { user } = useAuth()
         <template v-if="user">
           <RouterLink to="/import" class="hover:opacity-80">Importer un terme</RouterLink>
           <RouterLink to="/term" class="hover:opacity-80">Ajouter un terme</RouterLink>
+          <RouterLink to="/user/profile" class="hover:opacity-80">Mon profil</RouterLink>
           <RouterLink to="/user/logout" class="hover:opacity-80">Déconnexion</RouterLink>
         </template>
         <RouterLink v-else to="/user/login" class="hover:opacity-80">Connexion</RouterLink>

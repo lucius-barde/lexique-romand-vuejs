@@ -2,9 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../pages/Home.vue'
 import Lexique from '../pages/Lexique.vue'
 import TermEdit from '../pages/TermEdit.vue'
+import TermSingle from '../pages/TermSingle.vue'
 import Login from '../pages/Login.vue'
 import Logout from '../pages/Logout.vue'
 import Import from '../pages/Import.vue'
+import Profile from '../pages/Profile.vue'
 import { useAuth } from '../lib/useAuth'
 
 const router = createRouter({
@@ -25,8 +27,21 @@ const router = createRouter({
     { path: '/term', name: 'term-new', component: TermEdit },
     { path: '/term/:id/edit', name: 'term-edit', component: TermEdit, props: true },
 
+    {
+      path: '/lexique/terme/:source_identifier/:term',
+      name: 'term-single',
+      component: TermSingle,
+      props: true,
+    },
+
     { path: '/user/login', name: 'login', component: Login },
     { path: '/user/logout', name: 'logout', component: Logout },
+    {
+      path: '/user/profile',
+      name: 'profile',
+      component: Profile,
+      meta: { requiresAuth: true },
+    },
 
     {
       path: '/import',

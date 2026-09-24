@@ -2,10 +2,14 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../lib/useAuth'
-import { listTerms, deleteTerm, formatDateShort, termAnchor, PAGE_SIZE } from '../lib/terms'
+import { listTerms, deleteTerm, formatDateShort, termAnchor, termUrl, PAGE_SIZE } from '../lib/terms'
+import { getReviewCounts } from '../lib/reviews'
+import { useReviewDialog } from '../lib/useReviewDialog'
 import AlphabetNav from '../components/AlphabetNav.vue'
 import Pagination from '../components/Pagination.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import ReviewButton from '../components/ReviewButton.vue'
+import ReviewDialog from '../components/ReviewDialog.vue'
 
 const props = defineProps({
   letter: { type: String, default: null },
@@ -20,6 +24,7 @@ const total = ref(0)
 const loading = ref(false)
 const error = ref('')
 const highlightedAnchor = ref('')
+const reviewCounts = ref(new Map())
 
 const currentPage = computed(() => Math.max(1, parseInt(props.page, 10) || 1))
 const activeLetter = computed(() => (props.letter ? props.letter.toUpperCase() : null))
@@ -41,12 +46,35 @@ async function loadTerms() {
     const result = await listTerms({ page: currentPage.value, letter: activeLetter.value })
     terms.value = result.terms
     total.value = result.total
+    reviewCounts.value = await getReviewCounts(result.terms.map((t) => t.id))
   } catch (err) {
     error.value = err.message || 'Impossible de charger le lexique.'
   } finally {
     loading.value = false
   }
 }
+
+function reviewCountFor(termId) {
+  return reviewCounts.value.get(termId) ?? 0
+}
+
+function adjustReviewCount(termId, delta) {
+  const current = reviewCounts.value.get(termId) ?? 0
+  const next = new Map(reviewCounts.value)
+  next.set(termId, Math.max(0, current + delta))
+  reviewCounts.value = next
+}
+
+const {
+  dialogOpen: reviewDialogOpen,
+  dialogInitialValues: reviewInitialValues,
+  dialogLoading: reviewLoading,
+  dialogError: reviewError,
+  openDialog: openReviewDialog,
+  closeDialog: closeReviewDialog,
+  submitDialog: submitReviewDialog,
+  deleteDialogReview: deleteReviewDialog,
+} = useReviewDialog(adjustReviewCount)
 
 watch([currentPage, activeLetter], async () => {
   await loadTerms()
@@ -115,7 +143,7 @@ async function confirmDialog() {
           <div class="flex items-start justify-between gap-2">
             <div>
               <h2 class="text-base font-semibold text-gray-900">
-                {{ term.term }}
+                <RouterLink :to="termUrl(term)" class="hover:underline">{{ term.term }}</RouterLink>
                 <span v-if="term.pronunciation" class="text-sm font-normal text-gray-500">
                   [{{ term.pronunciation }}]
                 </span>
@@ -154,6 +182,12 @@ async function confirmDialog() {
               Supprimer le terme
             </button>
           </div>
+
+          <ReviewButton
+            :count="reviewCountFor(term.id)"
+            :active="!!reviewInitialValues && reviewDialogOpen"
+            @click="openReviewDialog(term)"
+          />
         </article>
 
         <p v-if="!loading && terms.length === 0" class="text-center text-gray-400 py-8">
@@ -170,6 +204,16 @@ async function confirmDialog() {
       confirm-label="Supprimer"
       @confirm="confirmDialog"
       @cancel="closeDialog"
+    />
+
+    <ReviewDialog
+      :open="reviewDialogOpen"
+      :initial-values="reviewInitialValues"
+      :loading="reviewLoading"
+      :error="reviewError"
+      @submit="submitReviewDialog"
+      @delete="deleteReviewDialog"
+      @cancel="closeReviewDialog"
     />
   </main>
 </template>

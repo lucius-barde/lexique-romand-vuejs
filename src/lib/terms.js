@@ -70,6 +70,40 @@ export function termAnchor(term) {
   return [source, value].filter(Boolean).join('--')
 }
 
+// URL propre de la page "single term", ex: /lexique/terme/topio/pive
+// Réutilise la même normalisation que termAnchor, avec un slash entre les
+// deux segments plutôt qu'un double tiret.
+export function termUrl(term) {
+  const source = normalizeAnchorPart(term?.source_identifier)
+  const value = normalizeAnchorPart(term?.term)
+  return `/lexique/terme/${source}/${value}`
+}
+
+// Retrouve un terme à partir des deux segments de son URL propre
+// (/lexique/terme/:sourceSlug/:termSlug). Le slug du terme n'étant pas
+// réversible (accents, ponctuation supprimés), on filtre côté serveur sur
+// le premier "mot" du slug (le plus discriminant), puis on affine en JS en
+// comparant les slugs normalisés de chaque terme candidat.
+export async function getTermBySlug(sourceSlug, termSlug) {
+  const firstWord = String(termSlug || '').split('-')[0]
+
+  const { data, error } = await supabase
+    .from('lexiqueromand_terms')
+    .select('*')
+    .ilike('term', `%${firstWord}%`)
+
+  if (error) throw error
+
+  const match = (data || []).find((t) => {
+    return (
+      normalizeAnchorPart(t.source_identifier) === sourceSlug &&
+      normalizeAnchorPart(t.term) === termSlug
+    )
+  })
+
+  return match ?? null
+}
+
 export function termLetter(term) {
   const normalized = normalizeAnchorPart(term?.term)
   return normalized.charAt(0) || 'a'
