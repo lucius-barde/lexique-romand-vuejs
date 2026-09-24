@@ -18,7 +18,7 @@ defineProps({
         ? 'bg-blue-900 text-white'
         : 'bg-blue-100 text-gray-700 hover:bg-blue-200'"
     >
-      Tous
+      🕙
     </RouterLink>
     <RouterLink
       v-for="letter in ALPHABET"

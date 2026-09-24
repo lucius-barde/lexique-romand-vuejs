@@ -4,6 +4,11 @@ body {
   @apply bg-gray-50 text-gray-900;
 }
 
+mark{
+    background-color: lightyellow;
+    font-weight:bold;
+}
+
 header{
     background-color: var(--color-blue-900);
 }

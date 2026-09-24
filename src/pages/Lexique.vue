@@ -125,10 +125,10 @@ async function confirmDialog() {
             <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDateShort(term.edited) }}</span>
           </div>
 
-          <p class="mt-2 text-sm text-gray-800">{{ term.definition }}</p>
+          <p class="mt-2 text-sm text-gray-800" v-html="term.definition"></p>
 
-          <p v-if="term.example" class="mt-1 text-sm text-gray-600 italic">« {{ term.example }} »</p>
-          <p v-if="term.etymology" class="mt-1 text-xs text-gray-500">Étymologie : {{ term.etymology }}</p>
+          <p v-if="term.example" class="mt-1 text-sm text-gray-600 italic">« <span v-html="term.example"></span> »</p>
+          <p v-if="term.etymology" class="mt-1 text-xs text-gray-500">Étymologie : <span v-html="term.etymology"></span></p>
           <p v-if="term.variants" class="mt-1 text-xs text-gray-500">Variantes : {{ term.variants }}</p>
           <p v-if="term.present_in_regions" class="mt-1 text-xs text-gray-500">
             Régions : {{ term.present_in_regions }}

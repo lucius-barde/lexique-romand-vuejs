@@ -71,7 +71,7 @@ function shortDefinition(definition) {
           <h2 class="text-base font-semibold text-gray-900">
             <RouterLink :to="readMoreLink(term)" class="hover:underline">{{ term.term }}</RouterLink>
           </h2>
-          <p class="mt-1 text-sm text-gray-700">{{ shortDefinition(term.definition) }}</p>
+          <p class="mt-1 text-sm text-gray-700" v-html="shortDefinition(term.definition)"></p>
           <RouterLink :to="readMoreLink(term)" class="mt-2 inline-block text-sm font-medium text-blue-900 hover:underline">
             Lire la suite...
           </RouterLink>
