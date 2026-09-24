@@ -19,7 +19,7 @@ plusieurs sources.
 - `/term/:id/edit` — Éditer un terme existant (connexion requise, propriétaire uniquement).
 - `/user/login` — Connexion (email + mot de passe, Supabase Auth).
 - `/user/logout` — Déconnexion, puis redirection vers l'accueil.
-- `/import` — Import de termes en masse (en construction), connexion requise.
+- `/import` — Import de termes depuis Henrysuter.ch et Topio.ch, connexion requise.
 
 ## Développement local
 
@@ -48,6 +48,8 @@ npm run dev
 ```
 
 L'application est disponible sur `http://localhost:5173`.
+
+> Les recherches externes passent par la fonction serverless `api/import.js` afin d'éviter les restrictions CORS du navigateur. En local, le proxy Vite relaie `/api` vers `http://localhost:3000`; utilisez un environnement Vercel local (par exemple `vercel dev`) pour tester simultanément le frontend et la fonction serverless.
 
 ### 5. Build de production (vérification locale)
 
