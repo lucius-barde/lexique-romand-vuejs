@@ -78,6 +78,7 @@ export function useReviewDialog(onCountChange) {
 
   return {
     dialogOpen,
+    dialogTerm,
     dialogInitialValues,
     dialogLoading,
     dialogError,

@@ -2,8 +2,8 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../lib/useAuth'
-import { listTerms, deleteTerm, formatDateShort, termAnchor, termUrl, PAGE_SIZE } from '../lib/terms'
-import { getReviewCounts } from '../lib/reviews'
+import { listTerms, listTopTerms, deleteTerm, formatDateShort, termAnchor, termUrl, PAGE_SIZE } from '../lib/terms'
+import { getReviewCounts, getUserReviewForTerm } from '../lib/reviews'
 import { useReviewDialog } from '../lib/useReviewDialog'
 import AlphabetNav from '../components/AlphabetNav.vue'
 import Pagination from '../components/Pagination.vue'
@@ -14,6 +14,7 @@ import ReviewDialog from '../components/ReviewDialog.vue'
 const props = defineProps({
   letter: { type: String, default: null },
   page: { type: String, default: '1' },
+  top: { type: Boolean, default: false },
 })
 
 const { user } = useAuth()
@@ -25,10 +26,13 @@ const loading = ref(false)
 const error = ref('')
 const highlightedAnchor = ref('')
 const reviewCounts = ref(new Map())
+const reviewedTermIds = ref(new Set())
 
 const currentPage = computed(() => Math.max(1, parseInt(props.page, 10) || 1))
 const activeLetter = computed(() => (props.letter ? props.letter.toUpperCase() : null))
+const activeTop = computed(() => props.top)
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
+const reviewDialogTermId = computed(() => reviewDialogTerm.value?.id)
 
 function buildHref(page) {
   if (activeLetter.value) {
@@ -43,15 +47,33 @@ async function loadTerms() {
   loading.value = true
   error.value = ''
   try {
-    const result = await listTerms({ page: currentPage.value, letter: activeLetter.value })
-    terms.value = result.terms
-    total.value = result.total
-    reviewCounts.value = await getReviewCounts(result.terms.map((t) => t.id))
+    if (activeTop.value) {
+      terms.value = await listTopTerms()
+      total.value = terms.value.length
+      reviewCounts.value = new Map(terms.value.map((term) => [term.id, term.review_count]))
+    } else {
+      const result = await listTerms({ page: currentPage.value, letter: activeLetter.value })
+      terms.value = result.terms
+      total.value = result.total
+      reviewCounts.value = await getReviewCounts(result.terms.map((t) => t.id))
+    }
+    reviewedTermIds.value = await loadReviewedTermIds(terms.value)
   } catch (err) {
     error.value = err.message || 'Impossible de charger le lexique.'
   } finally {
     loading.value = false
   }
+}
+
+async function loadReviewedTermIds(termsToCheck) {
+  if (!user.value || termsToCheck.length === 0) return new Set()
+
+  const reviews = await Promise.all(
+    termsToCheck.map((term) => getUserReviewForTerm(term.id, user.value.id)),
+  )
+  return new Set(
+    termsToCheck.filter((_, index) => reviews[index]).map((term) => term.id),
+  )
 }
 
 function reviewCountFor(termId) {
@@ -67,6 +89,7 @@ function adjustReviewCount(termId, delta) {
 
 const {
   dialogOpen: reviewDialogOpen,
+  dialogTerm: reviewDialogTerm,
   dialogInitialValues: reviewInitialValues,
   dialogLoading: reviewLoading,
   dialogError: reviewError,
@@ -74,9 +97,15 @@ const {
   closeDialog: closeReviewDialog,
   submitDialog: submitReviewDialog,
   deleteDialogReview: deleteReviewDialog,
-} = useReviewDialog(adjustReviewCount)
+} = useReviewDialog((termId, delta) => {
+  adjustReviewCount(termId, delta)
+  const next = new Set(reviewedTermIds.value)
+  if (delta > 0) next.add(termId)
+  else next.delete(termId)
+  reviewedTermIds.value = next
+})
 
-watch([currentPage, activeLetter], async () => {
+watch([currentPage, activeLetter, activeTop, user], async () => {
   await loadTerms()
   // Les articles sont rendus après le chargement asynchrone : le navigateur
   // ne peut donc pas toujours résoudre l'ancre tout seul.
@@ -123,14 +152,14 @@ async function confirmDialog() {
   <main class="flex-1 p-4">
     <div class="max-w-3xl mx-auto flex flex-col gap-6">
       <h1 class="text-lg font-semibold text-gray-900 text-center">
-        {{ activeLetter ? `Lexique — lettre ${activeLetter}` : 'Lexique complet' }}
+        {{ activeTop ? 'Lexique — termes les plus avisés' : activeLetter ? `Lexique — lettre ${activeLetter}` : 'Lexique complet' }}
       </h1>
 
-      <AlphabetNav :active-letter="activeLetter" />
+      <AlphabetNav :active-letter="activeLetter" :active-top="activeTop" />
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
-      <Pagination :current-page="currentPage" :total-pages="totalPages" :build-href="buildHref" />
+      <Pagination v-if="!activeTop" :current-page="currentPage" :total-pages="totalPages" :build-href="buildHref" />
 
       <div class="flex flex-col gap-4">
         <article
@@ -185,7 +214,7 @@ async function confirmDialog() {
 
           <ReviewButton
             :count="reviewCountFor(term.id)"
-            :active="!!reviewInitialValues && reviewDialogOpen"
+            :active="reviewedTermIds.has(term.id) || (reviewDialogOpen && reviewInitialValues && reviewDialogTermId === term.id)"
             @click="openReviewDialog(term)"
           />
         </article>
@@ -195,7 +224,7 @@ async function confirmDialog() {
         </p>
       </div>
 
-      <Pagination :current-page="currentPage" :total-pages="totalPages" :build-href="buildHref" />
+      <Pagination v-if="!activeTop" :current-page="currentPage" :total-pages="totalPages" :build-href="buildHref" />
     </div>
 
     <ConfirmDialog

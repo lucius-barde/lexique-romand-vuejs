@@ -243,7 +243,7 @@ export async function searchHsuternames(searchTerm) {
       score: localBest.score,
       result: {
         term,
-        category: 'Nom',
+        category: 'Nom propre',
         definition: cleanDefinition(match[2]),
         example: null,
         variants,

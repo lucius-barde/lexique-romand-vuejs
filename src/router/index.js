@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: Home },
 
     { path: '/lexique', name: 'lexique', component: Lexique },
+    { path: '/lexique/top', name: 'lexique-top', component: Lexique, props: { top: true } },
     { path: '/lexique/page/:page', name: 'lexique-page', component: Lexique, props: true },
     { path: '/lexique/:letter', name: 'lexique-letter', component: Lexique, props: true },
     {

@@ -85,19 +85,23 @@ export function termUrl(term) {
 // le premier "mot" du slug (le plus discriminant), puis on affine en JS en
 // comparant les slugs normalisés de chaque terme candidat.
 export async function getTermBySlug(sourceSlug, termSlug) {
-  const firstWord = String(termSlug || '').split('-')[0]
+  const normalizedSource = normalizeAnchorPart(sourceSlug)
+  const normalizedTerm = normalizeAnchorPart(termSlug)
 
+  if (!normalizedSource || !normalizedTerm) return null
+
+  // Normalize both route values as well as database values so slugs with
+  // percent-encoded or literal accents resolve consistently.
   const { data, error } = await supabase
     .from('lexiqueromand_terms')
     .select('*')
-    .ilike('term', `%${firstWord}%`)
 
   if (error) throw error
 
   const match = (data || []).find((t) => {
     return (
-      normalizeAnchorPart(t.source_identifier) === sourceSlug &&
-      normalizeAnchorPart(t.term) === termSlug
+      normalizeAnchorPart(t.source_identifier) === normalizedSource &&
+      normalizeAnchorPart(t.term) === normalizedTerm
     )
   })
 
@@ -122,6 +126,27 @@ export async function searchTerms(searchTerm) {
 
   if (error) throw error
   return data || []
+}
+
+export async function listTopTerms() {
+  const [{ data: terms, error: termsError }, { data: reviews, error: reviewsError }] =
+    await Promise.all([
+      supabase.from('lexiqueromand_terms').select('*'),
+      supabase.from('lexiqueromand_reviews').select('term_id'),
+    ])
+
+  if (termsError) throw termsError
+  if (reviewsError) throw reviewsError
+
+  const reviewCounts = new Map()
+  for (const review of reviews || []) {
+    reviewCounts.set(review.term_id, (reviewCounts.get(review.term_id) ?? 0) + 1)
+  }
+
+  return (terms || [])
+    .filter((term) => reviewCounts.has(term.id))
+    .map((term) => ({ ...term, review_count: reviewCounts.get(term.id) }))
+    .sort((a, b) => b.review_count - a.review_count || a.term.localeCompare(b.term, 'fr'))
 }
 
 export async function listTerms({ page = 1, letter = null } = {}) {
