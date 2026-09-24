@@ -13,7 +13,7 @@ const result = ref(null)
 const error = ref('')
 const searching = ref(false)
 const inserting = ref(false)
-const activeTab = ref('single')
+
 
 const sourceLabels = {
   hsuter: 'Henrysuter.ch',
@@ -71,14 +71,7 @@ async function insertResult() {
     <template v-if="isReady">
       <div v-if="!user" class="text-center text-gray-500">Veuillez vous connecter pour accéder à cette page.</div>
       <div v-else class="mx-auto flex w-full max-w-3xl flex-col gap-6">
-        <div class="border-b border-gray-200">
-          <nav class="flex gap-6" aria-label="Sections d'importation">
-            <button type="button" class="border-b-2 px-1 pb-3 text-sm font-medium" :class="activeTab === 'single' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500'" @click="activeTab = 'single'">Importer un terme</button>
-            <button type="button" class="border-b-2 px-1 pb-3 text-sm font-medium" :class="activeTab === 'multiple' ? 'border-blue-900 text-blue-900' : 'border-transparent text-gray-500'" @click="activeTab = 'multiple'">Import multiple</button>
-          </nav>
-        </div>
-
-        <section v-if="activeTab === 'single'" class="flex flex-col gap-5">
+        <section class="flex flex-col gap-5">
           <h1 class="text-2xl font-semibold">Importer un terme</h1>
           <form class="flex max-w-xl flex-col gap-4" @submit.prevent="search">
             <div>
@@ -104,7 +97,6 @@ async function insertResult() {
           </article>
         </section>
 
-        <section v-else class="rounded-md border border-dashed border-gray-300 p-8 text-center text-gray-500">Import multiple via fichiers - Cette fonctionnalité est en construction.</section>
       </div>
     </template>
   </main>

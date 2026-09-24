@@ -15,8 +15,8 @@ const { user } = useAuth()
       <nav class="flex items-center gap-4 text-sm text-white">
         <RouterLink to="/lexique" class="hover:opacity-80">Lexique</RouterLink>
         <template v-if="user">
+          <RouterLink to="/import" class="hover:opacity-80">Importer un terme</RouterLink>
           <RouterLink to="/term" class="hover:opacity-80">Ajouter un terme</RouterLink>
-          <RouterLink to="/import" class="hover:opacity-80">Importer des termes</RouterLink>
           <RouterLink to="/user/logout" class="hover:opacity-80">Déconnexion</RouterLink>
         </template>
         <RouterLink v-else to="/user/login" class="hover:opacity-80">Connexion</RouterLink>
