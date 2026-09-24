@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../lib/useAuth'
-import { listTerms, deleteTerm, formatDateShort, PAGE_SIZE } from '../lib/terms'
+import { listTerms, deleteTerm, formatDateShort, termAnchor, PAGE_SIZE } from '../lib/terms'
 import AlphabetNav from '../components/AlphabetNav.vue'
 import Pagination from '../components/Pagination.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -19,6 +19,7 @@ const terms = ref([])
 const total = ref(0)
 const loading = ref(false)
 const error = ref('')
+const highlightedAnchor = ref('')
 
 const currentPage = computed(() => Math.max(1, parseInt(props.page, 10) || 1))
 const activeLetter = computed(() => (props.letter ? props.letter.toUpperCase() : null))
@@ -47,7 +48,18 @@ async function loadTerms() {
   }
 }
 
-watch([currentPage, activeLetter], loadTerms, { immediate: true })
+watch([currentPage, activeLetter], async () => {
+  await loadTerms()
+  // Les articles sont rendus après le chargement asynchrone : le navigateur
+  // ne peut donc pas toujours résoudre l'ancre tout seul.
+  if (window.location.hash) {
+    const anchor = decodeURIComponent(window.location.hash.slice(1))
+    highlightedAnchor.value = anchor
+    requestAnimationFrame(() => {
+      document.getElementById(anchor)?.scrollIntoView({ block: 'start' })
+    })
+  }
+}, { immediate: true })
 
 // Gestion de la boîte de dialogue de confirmation (suppression)
 const dialog = ref({ open: false, term: null })
@@ -96,7 +108,9 @@ async function confirmDialog() {
         <article
           v-for="term in terms"
           :key="term.id"
-          class="rounded-md border border-blue-200 bg-white p-4"
+          :id="termAnchor(term)"
+          :class="highlightedAnchor === termAnchor(term) ? 'bg-[lightyellow]' : 'bg-white'"
+          class="rounded-md border border-blue-200 p-4"
         >
           <div class="flex items-start justify-between gap-2">
             <div>

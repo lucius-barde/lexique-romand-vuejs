@@ -52,6 +52,44 @@ export async function deleteTerm(id) {
 
 // Liste paginée des termes, triés par date de modification décroissante.
 // letter (optionnel) : filtre sur la première lettre du terme, tri alphabétique dans ce cas.
+// Génère un identifiant HTML stable et compatible avec une URL.
+// La normalisation Unicode est volontairement faite avant le remplacement des
+// caractères : elle évite de perdre des lettres lors de la suppression des accents.
+function normalizeAnchorPart(value) {
+  return String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export function termAnchor(term) {
+  const source = normalizeAnchorPart(term?.source_identifier)
+  const value = normalizeAnchorPart(term?.term)
+  return [source, value].filter(Boolean).join('--')
+}
+
+export function termLetter(term) {
+  const normalized = normalizeAnchorPart(term?.term)
+  return normalized.charAt(0) || 'a'
+}
+
+export async function searchTerms(searchTerm) {
+  const value = String(searchTerm || '').trim()
+  if (!value) return []
+
+  const { data, error } = await supabase
+    .from('lexiqueromand_terms')
+    .select('*')
+    .ilike('term', `%${value}%`)
+    .order('term', { ascending: true })
+    .limit(20)
+
+  if (error) throw error
+  return data || []
+}
+
 export async function listTerms({ page = 1, letter = null } = {}) {
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
