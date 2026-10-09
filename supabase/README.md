@@ -5,8 +5,9 @@
 1. Ouvrir le Dashboard Supabase du projet.
 2. Aller dans **SQL Editor** > **New query**.
 3. Copier-coller le contenu de [`schema.sql`](./schema.sql) et exécuter (bouton **Run**).
-4. Vérifier dans **Table Editor** que la table `lexiqueromand_terms` est bien créée.
-5. Vérifier dans **Authentication > Policies** que les 4 policies RLS sont actives sur `lexiqueromand_terms`.
+4. Pour une base existante, supprimer la colonne devenue inutile avec `alter table public.lexiqueromand_terms drop column if exists present_in_regions;`.
+5. Vérifier dans **Table Editor** que la table `lexiqueromand_terms` est bien créée.
+6. Vérifier dans **Authentication > Policies** que les 4 policies RLS sont actives sur `lexiqueromand_terms`.
 
 ## Table `lexiqueromand_terms`
 
@@ -22,7 +23,6 @@
 | `source_url`         | `text`        | URL de la source (optionnel)                                            |
 | `pronunciation`      | `text`        | Prononciation (optionnel)                                               |
 | `variants`           | `text`        | Variantes orthographiques ou régionales (optionnel)                     |
-| `present_in_regions` | `text`        | Régions où le terme est utilisé (optionnel)                             |
 | `author_id`          | `uuid`        | Référence `auth.users(id)`, non visible/éditable dans le formulaire     |
 | `created`            | `timestamptz` | Horodatage de création, non visible/éditable dans le formulaire         |
 | `edited`             | `timestamptz` | Horodatage de dernière modification (trigger), non éditable dans le formulaire |

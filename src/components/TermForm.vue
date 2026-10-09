@@ -33,7 +33,6 @@ const sourceIdentifier = ref(props.initialValues.source_identifier ?? '')
 const sourceUrl = ref(props.initialValues.source_url ?? '')
 const pronunciation = ref(props.initialValues.pronunciation ?? '')
 const variants = ref(props.initialValues.variants ?? '')
-const presentInRegions = ref(props.initialValues.present_in_regions ?? '')
 
 function handleSubmit() {
   emit('submit', {
@@ -46,7 +45,6 @@ function handleSubmit() {
     source_url: sourceUrl.value || null,
     pronunciation: pronunciation.value || null,
     variants: variants.value || null,
-    present_in_regions: presentInRegions.value || null,
   })
 }
 </script>
@@ -127,15 +125,6 @@ function handleSubmit() {
       />
     </div>
 
-    <div>
-      <label for="present_in_regions" class="block text-sm font-medium text-gray-700 mb-1">Régions</label>
-      <input
-        id="present_in_regions"
-        v-model="presentInRegions"
-        type="text"
-        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
-      />
-    </div>
 
     <div>
       <label for="source_identifier" class="block text-sm font-medium text-gray-700 mb-1">Source</label>

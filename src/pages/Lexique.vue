@@ -152,7 +152,7 @@ async function confirmDialog() {
   <main class="flex-1 p-4">
     <div class="max-w-3xl mx-auto flex flex-col gap-6">
       <h1 class="text-lg font-semibold text-gray-900 text-center">
-        {{ activeTop ? 'Lexique — termes les plus avisés' : activeLetter ? `Lexique — lettre ${activeLetter}` : 'Lexique complet' }}
+        {{ activeTop ? 'Termes les plus populaires' : activeLetter ? `Lexique — lettre ${activeLetter}` : 'Les dernières mises à jour' }}
       </h1>
 
       <AlphabetNav :active-letter="activeLetter" :active-top="activeTop" />
@@ -187,9 +187,6 @@ async function confirmDialog() {
           <p v-if="term.example" class="mt-1 text-sm text-gray-600 italic">« <span v-html="term.example"></span> »</p>
           <p v-if="term.etymology" class="mt-1 text-xs text-gray-500">Étymologie : <span v-html="term.etymology"></span></p>
           <p v-if="term.variants" class="mt-1 text-xs text-gray-500">Variantes : {{ term.variants }}</p>
-          <p v-if="term.present_in_regions" class="mt-1 text-xs text-gray-500">
-            Régions : {{ term.present_in_regions }}
-          </p>
           <p class="mt-1 text-xs text-gray-400">
             Source :
             <a v-if="term.source_url" :href="term.source_url" target="_blank" class="underline">{{ term.source_identifier }}</a>

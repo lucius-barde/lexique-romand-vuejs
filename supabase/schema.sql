@@ -20,11 +20,13 @@ create table if not exists public.lexiqueromand_terms (
   source_url          text,
   pronunciation       text,
   variants            text,
-  present_in_regions  text,
   author_id           uuid not null references auth.users (id) on delete cascade,
   created             timestamptz not null default now(),
   edited              timestamptz not null default now()
 );
+
+alter table public.lexiqueromand_terms
+  drop column if exists present_in_regions;
 
 comment on table public.lexiqueromand_terms is 'Termes du Lexique Romand, agrégés depuis plusieurs sources';
 comment on column public.lexiqueromand_terms.term is 'Le mot ou l''expression romande';
@@ -36,7 +38,6 @@ comment on column public.lexiqueromand_terms.source_identifier is 'Identifiant d
 comment on column public.lexiqueromand_terms.source_url is 'URL de la source (optionnel)';
 comment on column public.lexiqueromand_terms.pronunciation is 'Prononciation du terme (optionnel)';
 comment on column public.lexiqueromand_terms.variants is 'Variantes orthographiques ou régionales (optionnel)';
-comment on column public.lexiqueromand_terms.present_in_regions is 'Régions où le terme est utilisé (optionnel)';
 comment on column public.lexiqueromand_terms.author_id is 'Référence vers auth.users, non visible/éditable dans le formulaire';
 comment on column public.lexiqueromand_terms.created is 'Horodatage de création, non visible/éditable dans le formulaire';
 comment on column public.lexiqueromand_terms.edited is 'Horodatage de dernière modification, non visible/éditable dans le formulaire';

@@ -102,9 +102,6 @@ const {
             <p class="text-sm text-gray-600">{{ termData.variants }}</p>
           </div>
 
-          <p v-if="termData.present_in_regions" class="mt-4 text-xs text-gray-500">
-            Régions : {{ termData.present_in_regions }}
-          </p>
 
           <p class="mt-1 text-xs text-gray-400">
             Source :

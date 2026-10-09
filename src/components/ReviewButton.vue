@@ -16,8 +16,8 @@ const emit = defineEmits(['click'])
       :class="active ? 'bg-blue-900 text-white' : 'bg-blue-100 text-gray-700 hover:bg-blue-200'"
       :title="active ? 'Éditer votre avis' : 'Ajouter un avis'"
     >
-      👍
+      👍 {{ count }}
     </button>
-    <span class="text-xs text-gray-500">{{ count }} avis</span>
+    <span class="text-xs text-gray-500"> Cliquer pour ajouter un avis</span>
   </div>
 </template>

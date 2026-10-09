@@ -76,13 +76,13 @@ function handleDelete() {
   >
     <div class="w-full max-w-md rounded-lg bg-white p-5 shadow-lg my-8">
       <h2 class="text-base font-semibold text-gray-900 mb-4">
-        {{ isEditing ? 'Éditer votre avis' : 'Ajouter un avis' }}
+        {{ isEditing ? 'Éditer ton avis' : 'Ajouter un avis sur ce mot' }}
       </h2>
 
       <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Utilisez-vous ce terme régulièrement ?
+              Est-ce que tu utilises ce mot régulièrement ?
           </label>
           <select
             v-model="termSelfUsage"
@@ -97,7 +97,7 @@ function handleDelete() {
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            À quelle fréquence entendez-vous ce terme ?
+            À quelle fréquence tu entends des gens utiliser ce mot ?
           </label>
           <select
             v-model="termPerceivedUsage"
@@ -112,7 +112,7 @@ function handleDelete() {
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Terme plutôt oral ou écrit ?
+            Terme plutôt utilisé à l'oral ou à l'écrit ?
           </label>
           <select
             v-model="termWrittenUsage"
@@ -126,7 +126,7 @@ function handleDelete() {
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Comment jugeriez-vous le contexte où ce terme est utilisé ?
+            Comment tu jugerais le contexte où ce terme est employé ?
           </label>
           <select
             v-model="termPerceivedContext"
@@ -141,7 +141,7 @@ function handleDelete() {
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Régions où le terme est utilisé
+            Sélectionne les régions où ce mot est employé:
           </label>
           <div class="flex flex-wrap gap-2">
             <button
@@ -161,7 +161,7 @@ function handleDelete() {
 
         <div>
           <label for="term_review_message" class="block text-sm font-medium text-gray-700 mb-1">
-            Commentaire (sera affiché publiquement)
+              Un commentaire, ou une phrase à toi avec ce mot ?<br /><small>(sera affiché publiquement)</small>
           </label>
           <textarea
             id="term_review_message"
@@ -171,6 +171,7 @@ function handleDelete() {
           ></textarea>
         </div>
 
+        <p class="text-xs">Merci d'avance pour ta contribution, tetcheu !</p>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
         <div class="flex gap-2">
