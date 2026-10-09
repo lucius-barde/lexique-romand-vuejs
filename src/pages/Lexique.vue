@@ -80,6 +80,21 @@ function reviewCountFor(termId) {
   return reviewCounts.value.get(termId) ?? 0
 }
 
+const PREVIEW_LENGTH = 1000
+
+function plainText(value) {
+  return String(value ?? '').replace(/<[^>]*>/g, '')
+}
+
+function previewText(value) {
+  const text = plainText(value)
+  return text.length > PREVIEW_LENGTH ? `${text.slice(0, PREVIEW_LENGTH)}...` : text
+}
+
+function isTruncated(value) {
+  return plainText(value).length > PREVIEW_LENGTH
+}
+
 function adjustReviewCount(termId, delta) {
   const current = reviewCounts.value.get(termId) ?? 0
   const next = new Map(reviewCounts.value)
@@ -182,9 +197,23 @@ async function confirmDialog() {
             <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDateShort(term.edited) }}</span>
           </div>
 
-          <p class="mt-2 text-sm text-gray-800" v-html="term.definition"></p>
+          <p class="mt-2 text-sm text-gray-800">{{ previewText(term.definition) }}</p>
+          <RouterLink
+            v-if="isTruncated(term.definition)"
+            :to="termUrl(term)"
+            class="text-sm text-blue-900 underline"
+          >
+            Lire la suite
+          </RouterLink>
 
-          <p v-if="term.example" class="mt-1 text-sm text-gray-600 italic">« <span v-html="term.example"></span> »</p>
+          <p v-if="term.example" class="mt-1 text-sm text-gray-600 italic">« {{ previewText(term.example) }} »</p>
+          <RouterLink
+            v-if="term.example && isTruncated(term.example)"
+            :to="termUrl(term)"
+            class="text-sm text-blue-900 underline"
+          >
+            Lire la suite
+          </RouterLink>
           <p v-if="term.etymology" class="mt-1 text-xs text-gray-500">Étymologie : <span v-html="term.etymology"></span></p>
           <p v-if="term.variants" class="mt-1 text-xs text-gray-500">Variantes : {{ term.variants }}</p>
           <p class="mt-1 text-xs text-gray-400">
@@ -210,6 +239,7 @@ async function confirmDialog() {
           </div>
 
           <ReviewButton
+            v-if="term.category !== 'Nom propre'"
             :count="reviewCountFor(term.id)"
             :active="reviewedTermIds.has(term.id) || (reviewDialogOpen && reviewInitialValues && reviewDialogTermId === term.id)"
             @click="openReviewDialog(term)"

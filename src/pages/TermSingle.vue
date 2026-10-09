@@ -20,6 +20,7 @@ const error = ref('')
 
 const stats = computed(() => computeStats(reviews.value))
 const reviewCount = computed(() => reviews.value.length)
+const isProperNoun = computed(() => termData.value?.category === 'Nom propre')
 
 async function loadData() {
   loading.value = true
@@ -110,13 +111,14 @@ const {
           </p>
 
           <ReviewButton
+            v-if="!isProperNoun"
             :count="reviewCount"
             :active="!!reviewInitialValues && reviewDialogOpen"
             @click="openReviewDialog(termData)"
           />
         </article>
 
-        <div class="rounded-md border border-blue-200 bg-white p-4">
+        <div v-if="!isProperNoun" class="rounded-md border border-blue-200 bg-white p-4">
           <TermStats :stats="stats" />
         </div>
 
