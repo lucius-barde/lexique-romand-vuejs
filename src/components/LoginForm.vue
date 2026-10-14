@@ -26,8 +26,12 @@ async function handleSubmit() {
 </script>
 
 <template>
+
+
   <form @submit.prevent="handleSubmit" class="w-full max-w-sm mx-auto flex flex-col gap-4">
      <img id="homepage_logo" src="/logo.png" alt="Lexique Romand" class="m-auto w-24 h-24" />
+
+     <div class="text-green-700 text-center">Le projet est actuellement en phase de test fermée. L'ajout de contributions et de commentaires n'est actuellement ouvert qu'aux testeurs.</div>
     <div>
       <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
       <input
